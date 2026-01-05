@@ -38,11 +38,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const storedUser = tokenManager.getUser();
           setUser(storedUser);
         } else {
-          tokenManager.removeToken();
+          tokenManager.removeTokens();
           setUser(null);
         }
       } catch {
-        tokenManager.removeToken();
+        tokenManager.removeTokens();
         setUser(null);
       } finally {
         setIsLoading(false);

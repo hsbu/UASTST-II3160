@@ -28,10 +28,23 @@ export const circulationApi = axios.create({
 });
 
 /**
- * Request interceptor to attach JWT token to all requests
+ * Request interceptor to attach CATALOGING token
  */
-const attachTokenInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-  const token = tokenManager.getToken();
+const attachCatalogingTokenInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+  const token = tokenManager.getCatalogingToken();
+  
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return config;
+};
+
+/**
+ * Request interceptor to attach CIRCULATION token
+ */
+const attachCirculationTokenInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+  const token = tokenManager.getCirculationToken();
   
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -56,10 +69,10 @@ const errorInterceptor = (error: AxiosError): Promise<never> => {
 
     // Handle 401 Unauthorized - token expired or invalid
     if (status === 401) {
-      tokenManager.removeToken();
+      tokenManager.removeTokens();
       
-      // Only redirect if we're in the browser
-      if (typeof window !== 'undefined') {
+      // Only redirect if we're in the browser and NOT already on login page
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
         window.location.href = '/login';
       }
     }
@@ -73,12 +86,12 @@ const errorInterceptor = (error: AxiosError): Promise<never> => {
   return Promise.reject(error);
 };
 
-// Apply interceptors to cataloging API
-catalogingApi.interceptors.request.use(attachTokenInterceptor, (error) => Promise.reject(error));
+// Apply interceptors to cataloging API (uses cataloging token)
+catalogingApi.interceptors.request.use(attachCatalogingTokenInterceptor, (error) => Promise.reject(error));
 catalogingApi.interceptors.response.use(responseInterceptor, errorInterceptor);
 
-// Apply interceptors to circulation API
-circulationApi.interceptors.request.use(attachTokenInterceptor, (error) => Promise.reject(error));
+// Apply interceptors to circulation API (uses circulation token)
+circulationApi.interceptors.request.use(attachCirculationTokenInterceptor, (error) => Promise.reject(error));
 circulationApi.interceptors.response.use(responseInterceptor, errorInterceptor);
 
 /**

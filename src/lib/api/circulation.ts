@@ -1,5 +1,6 @@
 import { circulationApi } from './client';
 import { tokenManager } from '@/lib/auth';
+import { generateCatalogingToken } from '@/lib/auth/catalogingToken';
 import {
   LoginRequest,
   LoginResponse,
@@ -18,26 +19,33 @@ import {
  */
 export const circulationService = {
   /**
-   * POST /auth/login - Authenticate user and get JWT token
+   * POST /auth/login - Authenticate user and get JWT tokens
    * Access: public (no auth required)
+   * 
+   * - Circulation token: obtained from circulation service /auth/login
+   * - Cataloging token: generated client-side (cataloging has no login endpoint)
    */
   async login(userId: string, role: UserRole): Promise<LoginResponse> {
     const requestBody: LoginRequest = { userId, role };
     
-    // Login endpoint doesn't require auth, so we make a direct call
-    const { data } = await circulationApi.post<LoginResponse>('/auth/login', requestBody);
+    // Get circulation token from API and generate cataloging token client-side
+    const [circulationResponse, catalogingToken] = await Promise.all([
+      circulationApi.post<LoginResponse>('/auth/login', requestBody),
+      generateCatalogingToken(userId, role),
+    ]);
     
-    // Store the token
-    tokenManager.setToken(data.token);
+    // Store both tokens
+    tokenManager.setCirculationToken(circulationResponse.data.token);
+    tokenManager.setCatalogingToken(catalogingToken);
     
-    return data;
+    return circulationResponse.data;
   },
 
   /**
-   * Logout - Clear the stored token
+   * Logout - Clear both stored tokens
    */
   logout(): void {
-    tokenManager.removeToken();
+    tokenManager.removeTokens();
   },
 
   /**

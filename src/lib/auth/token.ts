@@ -8,53 +8,76 @@ interface TokenPayload {
   iat: number;
 }
 
-const TOKEN_KEY = 'library_auth_token';
+const CATALOGING_TOKEN_KEY = 'library_cataloging_token';
+const CIRCULATION_TOKEN_KEY = 'library_circulation_token';
 
-// In-memory token for SSR safety
-let memoryToken: string | null = null;
+// In-memory tokens for SSR safety
+let memoryCatalogingToken: string | null = null;
+let memoryCirculationToken: string | null = null;
 
 export const tokenManager = {
   /**
-   * Store the JWT token
+   * Store the cataloging JWT token
    */
-  setToken(token: string): void {
-    memoryToken = token;
+  setCatalogingToken(token: string): void {
+    memoryCatalogingToken = token;
     if (typeof window !== 'undefined') {
-      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(CATALOGING_TOKEN_KEY, token);
     }
   },
 
   /**
-   * Get the stored JWT token
+   * Store the circulation JWT token
    */
-  getToken(): string | null {
-    if (memoryToken) return memoryToken;
+  setCirculationToken(token: string): void {
+    memoryCirculationToken = token;
     if (typeof window !== 'undefined') {
-      memoryToken = localStorage.getItem(TOKEN_KEY);
-    }
-    return memoryToken;
-  },
-
-  /**
-   * Remove the stored JWT token
-   */
-  removeToken(): void {
-    memoryToken = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(TOKEN_KEY);
+      localStorage.setItem(CIRCULATION_TOKEN_KEY, token);
     }
   },
 
   /**
-   * Check if the token is expired
+   * Get the cataloging token
    */
-  isTokenExpired(): boolean {
-    const token = this.getToken();
+  getCatalogingToken(): string | null {
+    if (memoryCatalogingToken) return memoryCatalogingToken;
+    if (typeof window !== 'undefined') {
+      memoryCatalogingToken = localStorage.getItem(CATALOGING_TOKEN_KEY);
+    }
+    return memoryCatalogingToken;
+  },
+
+  /**
+   * Get the circulation token
+   */
+  getCirculationToken(): string | null {
+    if (memoryCirculationToken) return memoryCirculationToken;
+    if (typeof window !== 'undefined') {
+      memoryCirculationToken = localStorage.getItem(CIRCULATION_TOKEN_KEY);
+    }
+    return memoryCirculationToken;
+  },
+
+  /**
+   * Remove all tokens
+   */
+  removeTokens(): void {
+    memoryCatalogingToken = null;
+    memoryCirculationToken = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(CATALOGING_TOKEN_KEY);
+      localStorage.removeItem(CIRCULATION_TOKEN_KEY);
+    }
+  },
+
+  /**
+   * Check if a specific token is expired
+   */
+  isTokenExpired(token: string | null): boolean {
     if (!token) return true;
 
     try {
       const decoded = jwtDecode<TokenPayload>(token);
-      // exp is in seconds, Date.now() is in milliseconds
       return decoded.exp * 1000 < Date.now();
     } catch {
       return true;
@@ -62,10 +85,24 @@ export const tokenManager = {
   },
 
   /**
-   * Get the decoded payload from the token
+   * Check if cataloging token is expired
+   */
+  isCatalogingTokenExpired(): boolean {
+    return this.isTokenExpired(this.getCatalogingToken());
+  },
+
+  /**
+   * Check if circulation token is expired
+   */
+  isCirculationTokenExpired(): boolean {
+    return this.isTokenExpired(this.getCirculationToken());
+  },
+
+  /**
+   * Get the decoded payload from circulation token (primary for user info)
    */
   getPayload(): TokenPayload | null {
-    const token = this.getToken();
+    const token = this.getCirculationToken();
     if (!token) return null;
 
     try {
@@ -111,9 +148,17 @@ export const tokenManager = {
   },
 
   /**
-   * Check if a valid token exists and is not expired
+   * Check if both tokens exist and are not expired
    */
   isAuthenticated(): boolean {
-    return !!this.getToken() && !this.isTokenExpired();
+    const catalogingToken = this.getCatalogingToken();
+    const circulationToken = this.getCirculationToken();
+    
+    return (
+      !!catalogingToken &&
+      !!circulationToken &&
+      !this.isTokenExpired(catalogingToken) &&
+      !this.isTokenExpired(circulationToken)
+    );
   },
 };

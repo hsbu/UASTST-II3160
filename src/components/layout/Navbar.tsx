@@ -15,11 +15,11 @@ export default function Navbar() {
     { href: '/books', label: 'Books' },
     { href: '/loans', label: 'My Loans' },
     { href: '/fines', label: 'Fines' },
-    { href: '/stats', label: 'Statistics' },
   ];
 
   // Librarian-only links
   const librarianLinks = [
+    { href: '/stats', label: 'Statistics' },
     { href: '/returns', label: 'Returns' },
   ];
 

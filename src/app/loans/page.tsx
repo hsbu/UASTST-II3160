@@ -58,7 +58,7 @@ export default function LoansPage() {
         </Alert>
       )}
 
-      <Card className="max-w-2xl">
+      <Card className="max-w-2xl mx-auto">
         <CardContent>
           <LoanForm
             defaultUserId={user?.userId}
@@ -70,7 +70,7 @@ export default function LoansPage() {
         </CardContent>
       </Card>
 
-      <Card className="max-w-2xl mt-6">
+      <Card className="max-w-2xl mx-auto mt-6">
         <CardContent>
           <h3 className="text-lg font-semibold mb-3">Loan Policy</h3>
           <ul className="text-sm text-gray-600 space-y-2">
