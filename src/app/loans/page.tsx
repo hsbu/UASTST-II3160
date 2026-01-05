@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth, useToast } from '@/context';
 import { useCreateLoan } from '@/hooks';
@@ -11,7 +11,7 @@ import { Card, CardContent, Alert } from '@/components/ui';
 import { LoanCreateRequest } from '@/types';
 import { getApiErrorMessage } from '@/lib/api';
 
-export default function LoansPage() {
+function LoansPageContent() {
   const { user, isMember } = useAuth();
   const { showToast } = useToast();
   const searchParams = useSearchParams();
@@ -82,5 +82,13 @@ export default function LoansPage() {
         </CardContent>
       </Card>
     </ProtectedRoute>
+  );
+}
+
+export default function LoansPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoansPageContent />
+    </Suspense>
   );
 }
