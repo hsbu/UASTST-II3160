@@ -39,7 +39,7 @@ export default function ReturnsPage() {
           description="Process book returns for library members"
         />
 
-        <Card className="max-w-2xl">
+        <Card className="max-w-2xl mx-auto">
           <CardContent>
             <ReturnForm
               onSubmit={handleReturn}
@@ -50,7 +50,7 @@ export default function ReturnsPage() {
           </CardContent>
         </Card>
 
-        <Card className="max-w-2xl mt-6">
+        <Card className="max-w-2xl mx-auto mt-6">
           <CardContent>
             <h3 className="text-lg font-semibold mb-3">Return Process</h3>
             <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">

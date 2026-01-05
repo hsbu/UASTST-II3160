@@ -1,6 +1,6 @@
 // User types for authentication
 
-export type UserRole = 'member' | 'librarian';
+import { UserRole } from './loan';
 
 export interface User {
   userId: string;
