@@ -1,4 +1,4 @@
-# Library Frontend
+# Library Super App
 
 A Next.js + React web service that consumes the Cataloging and Circulation APIs.
 
@@ -15,8 +15,8 @@ A Next.js + React web service that consumes the Cataloging and Circulation APIs.
 - Node.js 18+ 
 - npm or yarn
 - Running backend services:
-  - Cataloging Service (default: http://localhost:3000)
-  - Circulation Service (default: http://localhost:3002)
+  - Cataloging Service (default: http://18223014.tesatepadang.space)
+  - Circulation Service (default: http://18223096.tesatepadang.space)
 
 ## Installation
 
